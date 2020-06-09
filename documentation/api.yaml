@@ -1,0 +1,271 @@
+openapi: 3.0.0
+info:
+  title: "vgnlp Image Extraction API"
+  description: "RESTfulAPI of vgnlp Image Extraction"
+  version: 0.1.0
+  contact:
+    email: "omar@veriguide.org"
+externalDocs:
+  description: "Git Repository"
+  url: "https://github.com/ok524/vgimgextract"
+servers:
+  - url: "http://192.168.1.29/vgnlp"
+    description: "Development server"
+
+tags:
+- name: "Home"
+  description: "Home of the App."
+- name: "Document Queue"
+  description: "About the file/submission queue."
+- name: "YourApp - Image Extraction"
+  description: "About the application queue."
+
+
+
+paths:
+  /imgextr:
+    get:
+      tags:
+      - "Home"
+      summary: "Home page of the App."
+      responses:
+        200:
+          description: |
+            Valid Operation.
+        404:
+          description: |
+            Content not found.
+        500:
+          description: |
+            Server error.
+
+  /imgextr/documents:
+    get:
+      tags:
+      - "Document Queue"
+      summary: "Testing filler."
+      responses:
+        200:
+          description: |
+            Valid Operation.
+        404:
+          description: |
+            Content not found.
+        500:
+          description: |
+            Server error.
+
+  /imgextr/documents/status:
+    get:
+      tags:
+      - "Document Queue"
+      summary: "Listing of finished and unfinished tasks."
+      description: "List all tasks in database. Overview on the status of the application."
+      operationId: "getDocStatus"
+      parameters:
+      - in: "query"
+        name: "type"
+        schema:
+          type: "string"
+          nullable: true
+          enum:
+            - "all"
+            - "finished"
+            - "unfinished"
+            - null
+      - in: "query"
+        name: "page"
+        schema:
+          type: "integer"
+        description: "The number of pages to skip before starting to collect the result set."
+      - in: "query"
+        name: "limit"
+        schema:
+          type: "integer"
+        description: "The numbers of items to return."
+
+      responses:
+        "200":
+          description: |
+            Valid Operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocStatus"
+
+            # example:
+            #   success: true
+            #   exist: true
+            #   processed: true
+            #   result: [{text: "I", tag: "PRON"}, {text: " ", tag: "ESC"}, {text: "go", tag: "VERB"}]
+        500:
+          description: "Server Error"
+
+  /imgextr/documents/queue:
+    get:
+      tags:
+      - "Document Queue"
+      summary: "Current queueing tasks."
+      description: "List all tasks in the queue. Overview on the status of the application."
+      operationId: "getQueueStatus"
+
+      responses:
+        "200":
+          description: |
+            Valid Operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocStatus"
+        500:
+          description: "Server Error"
+
+  /imgextr/documents/get:
+    get:
+      tags:
+      - "Document Queue"
+      summary: "To retrive a result from the database."
+      description: "Check ID against with database, if record exists, return the content."
+      parameters:
+      - in: "query"
+        name: "uuid"
+        description: |
+          **uuid** is to identify the existing document in the database.
+        required: true
+        schema:
+          type: "string"
+      responses:
+        200:
+          description: |
+            Valid Operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocDetails"
+        500:
+          description: "Server Error"
+
+  /imgextr/documents/new:
+    post:
+      tags:
+      - "Document Queue"
+      summary: "Add a new job to the queue"
+      description: "Given a text, add it to the queue, then process the text."
+      operationId: "newDoc"
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: "object"
+              properties:
+                user_id:
+                  type: "string"
+                textline:
+                  type: "string"
+                  description: |
+                    **text** should contain the text that you wish to submit
+                fileName:
+                  type: "string"
+                  format: "binary"
+            example:
+              textline: "I go to school by bus."                      
+
+      responses:
+        "200":
+          description: |
+            Valid Operation.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocStatus"
+        "500":
+          description: "Server Error"
+
+
+  /imgextr/yourapp:
+    get:
+      tags:
+      - "YourApp - Image Extraction"
+      summary: "Testing filler."
+      responses:
+          200:
+            description: |
+              Valid Operation.
+
+  /imgextr/yourapp/status:
+    get:
+      tags:
+      - "YourApp - Image Extraction"
+      summary: "Finished and Unfinished application task list."
+      responses:
+          200:
+            description: |
+              Valid Operation.
+
+  /imgextr/yourapp/dohousekeep:
+    get:
+      tags:
+      - "YourApp - Image Extraction"
+      summary: "Force to check unfinished tasks, and requeue if needed. (Cron job)"
+      responses:
+          200:
+            description: |
+              Valid Operation.
+
+
+
+components:
+  schemas:
+    DocStatus:
+      type: "object"
+      properties:
+        status:
+          type: "string"
+        msg:
+          type: "string"
+        ts:
+          type: "string"
+        result:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              id:
+                type: "string"
+              uuid:
+                type: "string"
+              task_id:
+                type: "string"
+              status:
+                type: "string"
+
+    DocDetails:
+      type: "object"
+      properties:
+        status:
+          type: "string"
+        msg:
+          type: "string"
+        ts:
+          type: "string"
+        result:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              id:
+                type: "string"
+              uuid:
+                type: "string"
+              task_id:
+                type: "string"
+              process_stage:
+                type: "string"
+              process_status:
+                type: "string"
+              retried:
+                type: "integer"
+              body:
+                type: "string"
+              processed_body:
+                type: "string"

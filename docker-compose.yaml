@@ -47,7 +47,7 @@ services:
       - ./instance:/home/flask/app/instance
       - ./output_files:/home/flask/app/output_files
 
-      - ./application/document_stats.py:/home/flask/app/application/document_stats.py
+      # - ./application/document_stats.py:/home/flask/app/application/document_stats.py
       - ./application/templates/index.html:/home/flask/app/application/templates/index.html
     command: /usr/local/bin/gunicorn -w 1 -b :8001 application:app
     links:

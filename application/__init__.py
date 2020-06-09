@@ -1,6 +1,7 @@
 import os
 
-from flask import Flask, render_template
+from flask import Flask, render_template, send_from_directory
+from flask_cors import CORS, cross_origin
 
 #application factory function
 def create_app(test_config=None):
@@ -19,7 +20,7 @@ def create_app(test_config=None):
         REDIS_HOST = 'redis',
         REDIS_PORT = 6379,
         REDIS_DB = '0',
-        QUEUES = ['default'],
+        QUEUES = ['default'], # instance/config.py will override
     )
 
     if test_config is None:
@@ -49,11 +50,48 @@ def create_app(test_config=None):
     from application.yourapp import yourapp
     app.register_blueprint(yourapp, url_prefix='/yourapp')
 
+    from application.documents import documents
+    app.register_blueprint(documents, url_prefix='/documents')
+
+    # handle output_files
+    @app.route('/output_files/<path:path>')
+    @cross_origin()
+    def output_files(path):
+        return send_from_directory(
+            os.path.join("/home/flask/app/output_files", ""),
+            path)
+
+    # handle favicon
+    @app.route('/favicon.ico')
+    @cross_origin()
+    def favicon():
+        return send_from_directory(
+            os.path.join("/home/flask/app/application", "static"),
+            "favicon.ico", mimetype="image/vnd.microsoft.icon")
+
+    # handle the docs yaml
+    @app.route('/api.yaml')
+    @cross_origin()
+    def apiyaml():
+        return send_from_directory(
+            os.path.join("/home/flask/app/documentation", ""),
+            "api.yaml", mimetype="text/yaml")
+
+    # handle the docs page
+    @app.route('/docs')
+    @cross_origin()
+    def docs():
+        return render_template('docs.html')
+
+    # handle the list page
+    @app.route('/list')
+    def listing():
+        return render_template('list.html')
 
     # handle the main page
     @app.route('/')
     def index():
-        return render_template('index.html') 
+        return render_template('index.html')
 
     #register error handlers
     app.register_error_handler(404, page_not_found)

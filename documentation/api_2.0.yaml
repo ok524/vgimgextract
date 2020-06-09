@@ -1,0 +1,313 @@
+# openapi: "3.0.0"
+# info:
+#   description: "RESTfulAPI of vgnlp Image Extraction"
+#   version: "0.1.0"
+#   title: "vgnlp Image Extraction API"
+#   termsOfService: ""
+#   contact:
+#     email: "omar@veriguide.org"
+# externalDocs:
+#     description: Git Repo
+#     url: https://github.com/ok524/vgimgextract
+# host: "192.168.1.29"
+# basePath: "/vgnlp"
+# tags:
+# - name: "Home"
+#   description: "Home of the App."
+# - name: "Document Queue"
+#   description: "About the file/submission queue."
+# - name: "YourApp - Image Extraction"
+#   description: "About the application queue."
+# schemes:
+#   - "http"
+#   - "https"
+
+
+openapi: 3.0.0
+info:
+  title: "vgnlp Image Extraction API"
+  description: "RESTfulAPI of vgnlp Image Extraction"
+  version: 0.1.0
+  contact:
+    email: "omar@veriguide.org"
+externalDocs:
+  description: Git Repo
+  url: https://github.com/ok524/vgimgextract
+servers:
+  - url: http://192.168.1.29/vgnlp
+    description: Optional server description, e.g. Main (production) server
+
+paths:
+  /imgextr:
+    get:
+      tags:
+      - "Home"
+      summary: "Home page of the App."
+      responses:
+        200:
+          description: |
+            Valid Operation.
+        404:
+          description: |
+            Content not found.
+        500:
+          description: |
+            Server error.
+
+  /imgextr/documents:
+    get:
+      tags:
+      - "Document Queue"
+      summary: "Testing filler."
+      responses:
+        200:
+          description: |
+            Valid Operation.
+        404:
+          description: |
+            Content not found.
+        500:
+          description: |
+            Server error.
+
+  /imgextr/documents/status:
+    get:
+      tags:
+      - "Document Queue"
+      summary: "Listing of finished and unfinished tasks."
+      description: "List all tasks in the queue. Overview on the status of the application."
+      operationId: "getDocStatus"
+      # consumes:
+      # - "application/json"
+      # produces:
+      # - "application/json"
+      parameters:
+      - in: query
+        name: type
+        schema:
+          type: "string"
+          nullable: true
+          enum:
+            - all
+            - finished
+            - unfinished
+            - null
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: The number of pages to skip before starting to collect the result set
+      - in: query
+        name: limit
+        schema:
+          type: integer
+        description: The numbers of items to return
+
+      responses:
+        '200':
+          description: |
+            Valid Operation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocStatus'
+          # schema:
+          #   type: "object"
+          #   properties:
+          #     success:
+          #       type: "boolean"
+          #     exist:
+          #       type: "boolean"
+          #     processed:
+          #       type: "boolean"
+          #     result:
+          #       type: "array"
+          #       items:
+          #         type: "object"
+          #         properties:
+          #           text:
+          #             type: "string"
+          #           tag:
+          #             type: "string"
+
+            # example:
+            #   success: true
+            #   exist: true
+            #   processed: true
+            #   result: [{text: "I", tag: "PRON"}, {text: " ", tag: "ESC"}, {text: "go", tag: "VERB"}]
+        500:
+          description: "Server Error"
+
+  /imgextr/documents/get:
+    post:
+      tags:
+      - "Document Queue"
+      summary: "retrive result from the database"
+      description: "Test function to specificaly process a exisiting text entry in the database"
+      # consumes:
+      # - "application/json"
+      # produces:
+      # - "application/json"
+      parameters:
+      - in: "query"
+        name: "id"
+        description: |
+          **id** should contain the id of an existing document in database
+        required: true
+        schema:
+          type: "object"
+          properties:
+            id:
+              type: "integer"
+      responses:
+        200:
+          description: |
+            Valid Operation.
+            **success** indicates if the overall operation is successful.
+            **exist** indicates if the requested document exist in the database
+            **processed** indicates if the requested document, if it exist, have finished being processed. If **exist** is true, but **processed** is false, a request can be resent later to retrieve the processed result. 
+            if the overall operation is successful, **result** will contain the document as an array of token tagged with POS.
+            The result array contain a array for each token (whitespace is also treated as its own token). For each token, the first element is a string containing the literal text of the token. The second element is a string containing the tag of the token. 
+            For list of POS tags and their meaning, reference **"application/static/tagtable.js"**
+          # schema:
+          #   type: "object"
+          #   properties:
+          #     status:
+          #       type: "string"
+          #     exist:
+          #       type: "boolean"
+          #     success:
+          #       type: "boolean"
+          #     processed_text:
+          #       type: "string"
+          #     body:
+          #       type: "string"
+        500:
+          description: "Server Error"
+
+  /imgextr/documents/get_user:
+    get:
+      tags:
+      - "Document Queue"
+      summary: "Testing filler."
+      responses:
+          200:
+            description: |
+              Valid Operation.
+
+  /imgextr/documents/new:
+    post:
+      tags:
+      - "Document Queue"
+      summary: "Add a new job to the queue"
+      description: "Given a text, add it to the queue, then process the text."
+      operationId: "newDoc"
+      # consumes:
+      # - "multipart/form-data"
+      # produces:
+      # - "application/json"
+      parameters:
+      - in: "query"
+        name: "body"
+        description: |
+          **text** should contain the text that you wish to submit
+        required: true
+        schema:
+          type: "object"
+          properties:
+            textline:
+              type: "string"
+          example:
+            textline: "I go to school by bus."
+      responses:
+        200:
+          description: |
+            Valid Operation.
+            **success** indicates indicate if the submission is successful.
+            if the submission is successful, **id** contain a document id that can be used to retireve the processed document.
+          # schema:
+          #   type: "object"
+          #   properties:
+          #     status:
+          #       type: "string"
+          #     msg:
+          #       type: "string"
+          #     hash:
+          #       type: "string"
+          #     id:
+          #       type: "string"
+          #     task_id:
+          #       type: "string"
+        500:
+          description: "Server Error"
+
+
+  /imgextr/yourapp:
+    get:
+      tags:
+      - "YourApp - Image Extraction"
+      summary: "Testing filler."
+      responses:
+          200:
+            description: |
+              Valid Operation.
+
+  /imgextr/yourapp/status:
+    get:
+      tags:
+      - "YourApp - Image Extraction"
+      summary: "Finished and Unfinished application task list."
+      responses:
+          200:
+            description: |
+              Valid Operation.
+
+  /imgextr/yourapp/dohousekeep:
+    get:
+      tags:
+      - "YourApp - Image Extraction"
+      summary: "Force to check unfinished tasks, and requeue if needed. (Cron job)"
+      responses:
+          200:
+            description: |
+              Valid Operation.
+
+
+
+components:
+  schemas:
+    DocStatus:
+      type: object
+      properties:
+        status:
+          type: "string"
+        result:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              id:
+                type: "string"
+              status:
+                type: "string"
+
+    DocDetails:
+      type: object
+      properties:
+        status:
+          type: "string"
+        success:
+          type: "boolean"
+        exist:
+          type: "boolean"
+        processed:
+          type: "boolean"
+        result:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              text:
+                type: "string"
+              tag:
+                type: "string"

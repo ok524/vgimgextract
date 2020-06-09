@@ -34,4 +34,7 @@ RUN chown -R flask:flaskgroup /home/flask/app/output_files
 COPY ./yourapp /home/flask/app/yourapp
 RUN chown -R flask:flaskgroup /home/flask/app/yourapp
 
+COPY ./documentation /home/flask/app/documentation
+RUN chown -R flask:flaskgroup /home/flask/app/documentation
+
 USER flask

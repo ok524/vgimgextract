@@ -7,8 +7,8 @@ from flask.cli import with_appcontext
 #open a new database connection if it does not exist, otherwise return the existing connection
 def get_db():
     if 'db' not in g:
-        # MongoDb
-        connect(current_app.config["MONGODB_DB"], host=current_app.config["MONGODB_HOST"], port=current_app.config["MONGODB_PORT"])
+        # # MongoDb
+        # connect(current_app.config["MONGODB_DB"], host=current_app.config["MONGODB_HOST"], port=current_app.config["MONGODB_PORT"])
 
         # MySQL
         mysql = MySQL()
@@ -18,16 +18,18 @@ def get_db():
     return g.db
 
 def connect_db():
-    connect(current_app.config["MONGODB_DB"], host=current_app.config["MONGODB_HOST"], port=current_app.config["MONGODB_PORT"])
+    # connect(current_app.config["MONGODB_DB"], host=current_app.config["MONGODB_HOST"], port=current_app.config["MONGODB_PORT"])
+    pass
 
 #close the existing database connection
 def close_db(e=None):
-    # MongoDb
-    disconnect()
+    # # MongoDb
+    # disconnect()
+    pass
 
 def init_db():
-    # MongoDb
-    EDocuments.dropcollection()
+    # # MongoDb
+    # EDocuments.dropcollection()
 
     # MySQL
     db = get_db()

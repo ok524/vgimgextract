@@ -45,36 +45,16 @@ function handleFileUpload(event) {
 <div class="container-fluid" id="mainComponent" style="background-color:white;">
   <div class="container" style=" padding:10px;">
     <div class="row">
-      <div class="col-6">
-        <div class="form-group">
-          <div class="large-12 medium-12 small-12 cell">
-            <p> User ID:<br>
-              <input type="text" name="user_id" size="30" value="23456">
-            </p>
-            <p> Type some text:<br>
-              <textarea type="text" name="textline" size="30"></textarea>
-            </p>
-            <p>Please specify a file, or a set of files:<br>
-              <input type="file" name="file" onchange="handleFileUpload(event)" />
-            </p>
-            <div>
-              <button type="button" v-on:click="submitFile">Send</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <hr>
-    <div class="row">
       <div class="col-12">
+
         <!-- Project-based -->
         <div class="d-flex flex-row">
-          <item-cont v-for="item in result" :item="item"></item-cont>
+          <ul class="list-unstyled w-100">
+            <p v-if="result.length === 0">No items.</p>
+            <item-cont v-if="result.length > 0" v-for="item in result" :item="item"></item-cont>
+          </ul>
         </div>
-      </div>
-
-      <div class="col-12">
-        <textarea class="input-area form-control rounded-0" style="height:65vh" placeholder="Output" id="inputTextArea" v-model="outText">{{"{{text}}"}}</textarea>
+        
       </div>
     </div>
   </div>
@@ -83,6 +63,19 @@ function handleFileUpload(event) {
 
 <script>
 /* Project-based */
+Vue.component("img-cont", {
+  props: [
+    "item"
+  ],
+  data () {
+    return {}
+  },
+  template: `<a :href="'http://localhost:8001/' + item" title="" target="_blank" rel="noopener">
+    <img class="img_extr" :src="'http://localhost:8001/' + item" alt="" />
+  </a>
+  `
+});
+
 Vue.component("item-cont", {
   props: [
     "item"
@@ -90,12 +83,23 @@ Vue.component("item-cont", {
   data () {
     return {}
   },
-  template: `<div>
-    <a :href="'http://localhost:8001/' + item" title="" target="_blank" rel="noopener">
-      <img class="img_extr" :src="'http://localhost:8001/' + item" alt="" />
-    </a>
-    <hr>
-  </div>
+  template: `<li class="media w-100 m-2 p-2 border rounded bg-light">
+    <img class="mr-3" src="..." alt="Generic placeholder image">
+    <div class="media-body">
+      <h5 class="mt-0 mb-1">
+        {{"{{ item.file_name }}"}}
+        <span class="badge"
+        :class="{
+          'badge-success': item.process_status === 'FINISHED',
+          'badge-secondary': item.process_status !== 'FINISHED'
+        }">{{"{{ item.process_status }}"}}</span>
+      </h5>
+      <p>{{"{{ item.uuid }}"}}</p>
+      <div>
+        <img-cont v-for="item in JSON.parse(item.processed_body)" :item="item"></img-cont>
+      </div>
+    </div>
+  </li>
   `
 });
 
@@ -178,7 +182,25 @@ mainComponent = new Vue({
       });
     }
   },
+  created () {
+    let vm = this;
 
+    axios.get("/documents/status")
+      .then(function(response) {
+        if (response.data.result.length) {
+          console.log("SUCCESS!");
+          let item = response.data.result
+
+          vm.$set(vm, "result", item)
+        } else {
+          console.log("FAILURE!");
+        }
+
+      })
+      .catch(function(err) {
+        console.log("FAILURE!", err);
+      });
+  }
 })
 </script>
 
