@@ -33,7 +33,7 @@ function handleFileUpload(event) {
   <div class="container text-centre", style=" padding:10px">
     <div class="row">
       <div class="col-10">
-        <h3 class="display-4 white-header">Minimal App</h3>
+        <h3 class="white-header">Minimal App</h3>
         <p></p>
       </div>
       <div class="col-2 text-right">
@@ -45,36 +45,43 @@ function handleFileUpload(event) {
 <div class="container-fluid" id="mainComponent" style="background-color:white;">
   <div class="container" style=" padding:10px;">
     <div class="row">
-      <div class="col-6">
-        <div class="form-group">
-          <div class="large-12 medium-12 small-12 cell">
-            <p> User ID:<br>
-              <input type="text" name="user_id" size="30" value="23456">
-            </p>
-            <p> Type some text:<br>
-              <textarea type="text" name="textline" size="30"></textarea>
-            </p>
-            <p>Please specify a file, or a set of files:<br>
-              <input type="file" name="file" onchange="handleFileUpload(event)" />
-            </p>
-            <div>
-              <button type="button" v-on:click="submitFile">Send</button>
+      <div class="col-xs-12 col-sm-6">
+        <form class="form-group">
+            <div class="form-group row">
+              <label for="user_id" class="col-sm-3 col-form-label">User ID:</label>
+              <input type="text" name="user_id" id="user_id" class="col-sm-6" size="30" value="23456">
             </div>
-          </div>
-        </div>
+
+            <div class="form-group row d-none">
+              <label for="textline" class="col-sm-3 col-form-label">Some text:</label>
+              <textarea type="text" name="textline" id="textline" class="col-sm-6" size="30"></textarea>
+            </div>
+
+            <div class="form-group row">
+              <label for="file" class="col-sm-12 col-form-label">Select a file:</label>
+              <input type="file" name="file" id="file" onchange="handleFileUpload(event)" />
+            </div>
+
+            <div class="form-group row">
+              <label for="file" class="col-sm-3 col-form-label">&nbsp;</label>
+              <button type="button" class="btn btn-primary col-sm-4" v-on:click="submitFile">Send</button>
+            </div>
+        </form>
       </div>
-    </div>
-    <hr>
-    <div class="row">
-      <div class="col-12">
+
+      <div class="col-xs-12 col-sm-6">
         <!-- Project-based -->
-        <div class="d-flex flex-row">
+        <div class="d-flex flex-row align-content-start flex-wrap">
           <item-cont v-for="item in result" :item="item"></item-cont>
         </div>
       </div>
 
+    </div>
+    <hr>
+    <div class="row">
       <div class="col-12">
-        <textarea class="input-area form-control rounded-0" style="height:65vh" placeholder="Output" id="inputTextArea" v-model="outText">{{"{{text}}"}}</textarea>
+        <label for="inputTextArea">Output Log</label>
+        <textarea class="input-area form-control rounded-0" id="inputTextArea" v-model="outText">{{"{{text}}"}}</textarea>
       </div>
     </div>
   </div>
@@ -92,9 +99,8 @@ Vue.component("item-cont", {
   },
   template: `<div>
     <a :href="'http://localhost:8001/' + item" title="" target="_blank" rel="noopener">
-      <img class="img_extr" :src="'http://localhost:8001/' + item" alt="" />
+      <img class="img_extr m-1 border" :src="'http://localhost:8001/' + item" alt="" />
     </a>
-    <hr>
   </div>
   `
 });
