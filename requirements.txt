@@ -7,7 +7,7 @@ rq-dashboard==0.5.1
 rq==1.1.0
 supervisor==4.0.3
 gunicorn==19.9.0
-Click
-flask_cors
-fitz
-PyMuPDF
+click==7.1.2
+flask_cors==3.0.9
+fitz==0.0.1.dev2
+PyMuPDF==1.18.1
