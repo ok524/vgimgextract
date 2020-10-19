@@ -7,7 +7,7 @@ services:
       - 6379
 
   mongodb:
-    image: mongo:3.6.14
+    image: mongo:3.6.20
     restart: always
     expose:
       - 27017
@@ -49,7 +49,7 @@ services:
 
       # - ./application/document_stats.py:/home/flask/app/application/document_stats.py
       - ./application/templates/index.html:/home/flask/app/application/templates/index.html
-    command: /usr/local/bin/gunicorn -w 1 -b :8001 application:app
+    command: /usr/local/bin/gunicorn -w 3 -b :8001 application:app
     links:
       - redis
     depends_on:
